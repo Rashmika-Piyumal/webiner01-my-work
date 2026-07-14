@@ -1,7 +1,22 @@
+require('dotenv').config();
+
 const express = require('express');
+const cors = require('cors');
+const connectDB = require('./config/db');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
+
+connectDB();
+
+const publicPathPrefixes = ['/api/chat', '/api/bots/public'];
+
+app.use((req, res, next) => {
+  const isPublicPath = publicPathPrefixes.some((prefix) => req.path.startsWith(prefix));
+  return cors({ origin: isPublicPath ? '*' : process.env.CLIENT_URL })(req, res, next);
+});
+
+app.use(express.json());
 
 app.get('/', (req, res) => {
   res.send('Server scaffold running');
