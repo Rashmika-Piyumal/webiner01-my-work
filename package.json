@@ -1,0 +1,17 @@
+{
+  "name": "webiner01-my-work",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently -n server,client,widget,demo-site -c blue,green,yellow,magenta \"npm run dev --prefix server\" \"npm run dev --prefix client\" \"npx serve widget -l 5174\" \"npx serve demo-site -l 5175\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "concurrently": "^10.0.3"
+  }
+}
