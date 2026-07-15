@@ -1,5 +1,7 @@
 require('dotenv').config();
 
+const { createServer } = require('http');
+const { Server } = require('socket.io');
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
@@ -8,6 +10,7 @@ const botRoutes = require('./routes/bots');
 const chatRoutes = require('./routes/chat');
 const conversationRoutes = require('./routes/conversations');
 const leadRoutes = require('./routes/leads');
+const { setupSocket } = require('./socket');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -33,6 +36,10 @@ app.use('/api/chat', chatRoutes);
 app.use('/api', conversationRoutes);
 app.use('/api', leadRoutes);
 
-app.listen(PORT, () => {
+const httpServer = createServer(app);
+const io = new Server(httpServer, { cors: { origin: process.env.CLIENT_URL } });
+setupSocket(io);
+
+httpServer.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
