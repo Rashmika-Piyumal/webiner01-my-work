@@ -83,6 +83,27 @@
       justify-content: space-between;
       font-weight: 600;
     }
+    .cbsaas-header-title {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .cbsaas-header-status {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 400;
+      opacity: 0.85;
+    }
+    .cbsaas-header-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 9999px;
+      background: #4ade80;
+      box-shadow: 0 0 0 2px rgba(74, 222, 128, 0.35);
+      flex-shrink: 0;
+    }
     .cbsaas-header-close {
       background: none;
       border: none;
@@ -98,22 +119,23 @@
       padding: 16px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
       background: #ffffff;
     }
     .cbsaas-msg {
       max-width: 75%;
-      padding: 8px 12px;
-      border-radius: 12px;
+      padding: 9px 14px;
+      border-radius: 14px;
       font-size: 14px;
-      line-height: 1.4;
+      line-height: 1.45;
       white-space: pre-wrap;
       word-break: break-word;
     }
     .cbsaas-msg-user {
-      background: #4F46E5;
+      background: linear-gradient(135deg, #6366f1, #4338ca);
       color: #ffffff;
       margin-left: auto;
+      box-shadow: 0 2px 6px rgba(67, 56, 202, 0.25);
     }
     .cbsaas-msg-bot {
       background: #f1f5f9;
@@ -217,13 +239,20 @@
 
   const header = document.createElement('div');
   header.className = 'cbsaas-header';
+  const headerTitleGroup = document.createElement('div');
+  headerTitleGroup.className = 'cbsaas-header-title';
   const headerTitle = document.createElement('span');
   headerTitle.textContent = 'Chat';
+  const headerStatus = document.createElement('span');
+  headerStatus.className = 'cbsaas-header-status';
+  headerStatus.innerHTML = '<span class="cbsaas-header-dot"></span>Bot is online';
+  headerTitleGroup.appendChild(headerTitle);
+  headerTitleGroup.appendChild(headerStatus);
   const closeBtn = document.createElement('button');
   closeBtn.className = 'cbsaas-header-close';
   closeBtn.innerHTML = '&times;';
   closeBtn.setAttribute('aria-label', 'Close chat');
-  header.appendChild(headerTitle);
+  header.appendChild(headerTitleGroup);
   header.appendChild(closeBtn);
 
   const messagesEl = document.createElement('div');

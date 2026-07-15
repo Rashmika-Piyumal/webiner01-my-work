@@ -42,8 +42,24 @@ export default function Dashboard() {
       {loading ? (
         <p className="text-sm text-slate-600">Loading...</p>
       ) : bots.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-slate-300 bg-white p-12 text-center text-slate-600">
-          No bots yet. Create your first one!
+        <div className="flex flex-col items-center rounded-lg border border-dashed border-slate-300 bg-white p-16 text-center">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-indigo-50 text-indigo-500">
+            <svg viewBox="0 0 24 24" className="h-8 w-8" fill="currentColor">
+              <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
+            </svg>
+          </div>
+          <h2 className="mt-4 text-lg font-semibold text-slate-900">No bots yet</h2>
+          <p className="mt-1 max-w-sm text-sm text-slate-500">
+            Create your first AI chatbot and start capturing conversations and leads from your
+            website in minutes.
+          </p>
+          <button
+            type="button"
+            onClick={() => navigate('/bots/new')}
+            className="mt-6 rounded-lg bg-indigo-600 px-6 py-3 font-medium text-white hover:bg-indigo-700"
+          >
+            + Create Your First Bot
+          </button>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -53,6 +69,14 @@ export default function Dashboard() {
               <p className="mt-1 text-sm text-slate-500">
                 Embed key: {bot.embedKey.slice(0, 8)}...
               </p>
+              <div className="mt-3 flex gap-2 text-xs">
+                <span className="rounded-full bg-slate-100 px-2.5 py-1 font-medium text-slate-600">
+                  {bot.messageCount} {bot.messageCount === 1 ? 'message' : 'messages'}
+                </span>
+                <span className="rounded-full bg-emerald-50 px-2.5 py-1 font-medium text-emerald-700">
+                  {bot.leadCount} {bot.leadCount === 1 ? 'lead' : 'leads'}
+                </span>
+              </div>
               <button
                 type="button"
                 onClick={() => navigate(`/bots/${bot._id}`)}

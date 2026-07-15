@@ -9,7 +9,7 @@ const router = express.Router();
 
 const EDITABLE_FIELDS = ['name', 'welcomeMessage', 'businessKnowledge', 'primaryColor'];
 
-function toPublicBot(bot) {
+function toPublicBot(bot, counts = {}) {
   return {
     _id: bot._id,
     userId: bot.userId,
@@ -19,6 +19,8 @@ function toPublicBot(bot) {
     primaryColor: bot.primaryColor,
     embedKey: bot.embedKey,
     createdAt: bot.createdAt,
+    messageCount: counts.messageCount || 0,
+    leadCount: counts.leadCount || 0,
   };
 }
 
@@ -66,7 +68,30 @@ router.post('/', auth, async (req, res) => {
 router.get('/', auth, async (req, res) => {
   try {
     const bots = await Bot.find({ userId: req.userId }).sort({ createdAt: -1 });
-    res.json(bots.map(toPublicBot));
+    const botIds = bots.map((bot) => bot._id);
+
+    const [messageAgg, leadAgg] = await Promise.all([
+      Conversation.aggregate([
+        { $match: { botId: { $in: botIds } } },
+        { $group: { _id: '$botId', total: { $sum: '$messageCount' } } },
+      ]),
+      Lead.aggregate([
+        { $match: { botId: { $in: botIds } } },
+        { $group: { _id: '$botId', total: { $sum: 1 } } },
+      ]),
+    ]);
+
+    const messageCountByBot = new Map(messageAgg.map((row) => [String(row._id), row.total]));
+    const leadCountByBot = new Map(leadAgg.map((row) => [String(row._id), row.total]));
+
+    res.json(
+      bots.map((bot) =>
+        toPublicBot(bot, {
+          messageCount: messageCountByBot.get(String(bot._id)) || 0,
+          leadCount: leadCountByBot.get(String(bot._id)) || 0,
+        })
+      )
+    );
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to fetch bots' });

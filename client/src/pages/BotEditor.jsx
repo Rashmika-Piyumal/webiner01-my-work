@@ -170,7 +170,11 @@ export default function BotEditor() {
           </button>
         </form>
       ) : tab === 'Conversations' ? (
-        <ConversationsTab botId={id} focusConversationId={focusConversationId} />
+        <ConversationsTab
+          botId={id}
+          embedKey={bot?.embedKey}
+          focusConversationId={focusConversationId}
+        />
       ) : tab === 'Leads' ? (
         <LeadsTab botId={id} onViewConversation={handleViewConversation} />
       ) : (

@@ -1,20 +1,12 @@
 import { useState } from 'react';
+import { buildEmbedSnippet } from '../lib/embedSnippet';
 
-const WIDGET_SRC = 'http://localhost:5174/widget.js';
 const DEMO_URL = 'http://localhost:5175';
 
 export default function EmbedCodeTab({ bot }) {
   const [copied, setCopied] = useState(false);
 
-  const snippet = `<script>
-  (function(w,d){
-    w.ChatBotConfig = { embedKey: '${bot.embedKey}' };
-    var s = d.createElement('script');
-    s.src = '${WIDGET_SRC}';
-    s.async = 1;
-    d.head.appendChild(s);
-  })(window, document);
-</script>`;
+  const snippet = buildEmbedSnippet(bot.embedKey);
 
   async function handleCopy() {
     await navigator.clipboard.writeText(snippet);

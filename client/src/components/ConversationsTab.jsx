@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { api } from '../lib/api';
 import { getSocket, subscribeToBot } from '../lib/socket';
+import { buildEmbedSnippet } from '../lib/embedSnippet';
 
 function timeAgo(dateStr) {
   const diffMs = Date.now() - new Date(dateStr).getTime();
@@ -14,12 +15,13 @@ function timeAgo(dateStr) {
   return `${day}d ago`;
 }
 
-export default function ConversationsTab({ botId, focusConversationId }) {
+export default function ConversationsTab({ botId, embedKey, focusConversationId }) {
   const [conversations, setConversations] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [loadingList, setLoadingList] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const selectedIdRef = useRef(selectedId);
   const messagesEndRef = useRef(null);
@@ -106,13 +108,41 @@ export default function ConversationsTab({ botId, focusConversationId }) {
 
   const selectedConversation = conversations.find((c) => c._id === selectedId);
 
+  async function handleCopyEmbedCode() {
+    if (!embedKey) return;
+    await navigator.clipboard.writeText(buildEmbedSnippet(embedKey));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
   return (
     <div className="flex h-[600px] rounded-lg bg-white shadow-sm">
       <div className="w-72 shrink-0 overflow-y-auto border-r border-slate-200">
         {loadingList ? (
           <p className="p-4 text-sm text-slate-500">Loading...</p>
         ) : conversations.length === 0 ? (
-          <p className="p-4 text-sm text-slate-500">No conversations yet</p>
+          <div className="p-4 text-center">
+            <p className="text-sm font-medium text-slate-700">No conversations yet</p>
+            <p className="mt-1 text-xs text-slate-500">
+              Share your embed code to start receiving conversations.
+            </p>
+            {embedKey && (
+              <div className="relative mt-3 inline-block">
+                <button
+                  type="button"
+                  onClick={handleCopyEmbedCode}
+                  className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-700"
+                >
+                  Copy Embed Code
+                </button>
+                {copied && (
+                  <span className="absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-slate-900 px-2 py-1 text-xs text-white">
+                    Copied!
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
         ) : (
           conversations.map((c) => (
             <button
@@ -149,16 +179,16 @@ export default function ConversationsTab({ botId, focusConversationId }) {
                 Visitor {selectedConversation.visitorId.slice(-6)}
               </div>
             </div>
-            <div className="flex-1 space-y-2 overflow-y-auto px-4 py-3">
+            <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
               {loadingMessages ? (
                 <p className="text-sm text-slate-500">Loading...</p>
               ) : (
                 messages.map((m) => (
                   <div
                     key={m._id}
-                    className={`max-w-[70%] rounded-lg px-3 py-2 text-sm ${
+                    className={`max-w-[70%] rounded-lg px-3.5 py-2.5 text-sm leading-relaxed shadow-sm ${
                       m.role === 'user'
-                        ? 'ml-auto bg-indigo-600 text-white'
+                        ? 'ml-auto bg-gradient-to-br from-indigo-500 to-indigo-600 text-white'
                         : 'mr-auto bg-slate-100 text-slate-900'
                     }`}
                   >
