@@ -5,6 +5,7 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth');
 const botRoutes = require('./routes/bots');
+const chatRoutes = require('./routes/chat');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -26,6 +27,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/bots', botRoutes);
+app.use('/api/chat', chatRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
