@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { api } from '../lib/api';
+import ConversationsTab from '../components/ConversationsTab';
+import LeadsTab from '../components/LeadsTab';
+import EmbedCodeTab from '../components/EmbedCodeTab';
 
 const TABS = ['Settings', 'Conversations', 'Leads', 'Embed Code'];
 
@@ -16,22 +19,25 @@ export default function BotEditor() {
   const isNew = !id;
   const navigate = useNavigate();
 
+  const [bot, setBot] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [tab, setTab] = useState('Settings');
+  const [focusConversationId, setFocusConversationId] = useState(null);
 
   useEffect(() => {
     if (isNew) return;
     async function loadBot() {
       try {
-        const bot = await api.get(`/bots/${id}`);
+        const data = await api.get(`/bots/${id}`);
+        setBot(data);
         setForm({
-          name: bot.name,
-          welcomeMessage: bot.welcomeMessage,
-          businessKnowledge: bot.businessKnowledge,
-          primaryColor: bot.primaryColor,
+          name: data.name,
+          welcomeMessage: data.welcomeMessage,
+          businessKnowledge: data.businessKnowledge,
+          primaryColor: data.primaryColor,
         });
       } catch (err) {
         setError(err.message);
@@ -41,6 +47,11 @@ export default function BotEditor() {
     }
     loadBot();
   }, [id, isNew]);
+
+  function handleViewConversation(conversationId) {
+    setFocusConversationId(conversationId);
+    setTab('Conversations');
+  }
 
   function updateField(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -52,10 +63,11 @@ export default function BotEditor() {
     setSaving(true);
     try {
       if (isNew) {
-        const bot = await api.post('/bots', form);
-        navigate(`/bots/${bot._id}`);
+        const created = await api.post('/bots', form);
+        navigate(`/bots/${created._id}`);
       } else {
-        await api.patch(`/bots/${id}`, form);
+        const updated = await api.patch(`/bots/${id}`, form);
+        setBot(updated);
       }
     } catch (err) {
       setError(err.message);
@@ -157,10 +169,12 @@ export default function BotEditor() {
             {saving ? 'Saving...' : 'Save'}
           </button>
         </form>
+      ) : tab === 'Conversations' ? (
+        <ConversationsTab botId={id} focusConversationId={focusConversationId} />
+      ) : tab === 'Leads' ? (
+        <LeadsTab botId={id} onViewConversation={handleViewConversation} />
       ) : (
-        <div className="rounded-lg bg-white p-6 text-sm text-slate-500 shadow-sm">
-          Coming in next prompt
-        </div>
+        <EmbedCodeTab bot={bot} />
       )}
     </div>
   );

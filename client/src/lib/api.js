@@ -1,8 +1,8 @@
 const BASE_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api`;
 
-async function request(path, options = {}) {
+async function requestRaw(path, options = {}) {
   const token = localStorage.getItem('token');
-  const headers = { 'Content-Type': 'application/json', ...options.headers };
+  const headers = { ...options.headers };
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
@@ -20,6 +20,15 @@ async function request(path, options = {}) {
     throw new Error(message);
   }
 
+  return res;
+}
+
+async function request(path, options = {}) {
+  const res = await requestRaw(path, {
+    ...options,
+    headers: { 'Content-Type': 'application/json', ...options.headers },
+  });
+
   if (res.status === 204) {
     return null;
   }
@@ -33,4 +42,5 @@ export const api = {
   post: (path, body) => request(path, { method: 'POST', body: JSON.stringify(body) }),
   patch: (path, body) => request(path, { method: 'PATCH', body: JSON.stringify(body) }),
   del: (path) => request(path, { method: 'DELETE' }),
+  blob: async (path) => (await requestRaw(path)).blob(),
 };
