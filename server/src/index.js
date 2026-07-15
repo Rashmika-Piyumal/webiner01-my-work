@@ -6,6 +6,8 @@ const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth');
 const botRoutes = require('./routes/bots');
 const chatRoutes = require('./routes/chat');
+const conversationRoutes = require('./routes/conversations');
+const leadRoutes = require('./routes/leads');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -28,6 +30,8 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/bots', botRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api', conversationRoutes);
+app.use('/api', leadRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
